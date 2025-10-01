@@ -1,0 +1,37 @@
+{
+  "name": "elite-tracker",
+  "version": "1.0.0",
+  "description": "API Projeto Elite Tracker",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts"
+  },
+  "keywords": [
+    "API",
+    "Express",
+    "TypeScript",
+    "Node.js"
+  ],
+  "author": {
+    "name": "JulioPaschoal",
+    "url": "https://github.com/JulioPaschoal"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "express": "^5.1.0",
+    "mongoose": "^8.18.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.36.0",
+    "@types/express": "^5.0.3",
+    "eslint": "^9.36.0",
+    "globals": "^16.4.0",
+    "jiti": "^2.6.0",
+    "prettier": "3.6.2",
+    "tsx": "^4.20.6",
+    "typescript": "5.4.5",
+    "typescript-eslint": "^8.45.0"
+  }
+}
