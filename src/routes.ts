@@ -13,4 +13,6 @@ routes.get('/', (req, res) => {
   return res.status(200).json({ name, description, version });
 });
 
+routes.get('/habits', habitsController.index);
 routes.post('/habits', habitsController.store);
+routes.delete('/habits/:id', habitsController.remove);
