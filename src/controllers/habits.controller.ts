@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { Request, Response } from 'express';
 import { z } from 'zod';
 
@@ -60,5 +61,60 @@ export class HabitsController {
   };
 
   // MARCAR UM HÁBITO COMO COMPLETO \\
-  toggle = async (req: Request, res: Response) => {};
+  toggle = async (req: Request, res: Response) => {
+    // SCHEMA DE VALIDAÇÃO \\
+    const schema = z.object({
+      id: z.string(),
+    });
+    // VALIDANDO OS DADOS \\
+    const validated = schema.safeParse(req.params);
+    if (!validated.success) {
+      const errors = buildValidationErrorMessage(validated.error.issues);
+      return res.status(422).json({ message: errors });
+    }
+    // VERIFICANDO SE O HÁBITO EXISTE \\
+    const findHabit = await habitModel.findOne({ _id: validated.data.id });
+    if (!findHabit) {
+      return res.status(404).json({ message: 'Habit not found' });
+    }
+    // VERIFICANDO SE O HÁBITO JÁ FOI MARCADO COMO COMPLETO NESSA DATA \\
+    const now = dayjs().startOf('day').toISOString();
+    const isHabitCompletedOnDate = findHabit
+      .toObject()
+      ?.completedDates.find(
+        (item) => dayjs(String(item)).toISOString() === now,
+      );
+    if (isHabitCompletedOnDate) {
+      // DESMARCANDO O HÁBITO COMO COMPLETO \\
+      const habitUpdated = await habitModel.findByIdAndUpdate(
+        {
+          _id: validated.data.id,
+        },
+        {
+          $pull: {
+            completedDates: now,
+          },
+        },
+        {
+          returnDocument: 'after',
+        },
+      );
+      return res.status(200).json(habitUpdated);
+    }
+    // MARCANDO O HÁBITO COMO COMPLETO \\
+    const habitUpdated = await habitModel.findByIdAndUpdate(
+      {
+        _id: validated.data.id,
+      },
+      {
+        $push: {
+          completedDates: now,
+        },
+      },
+      {
+        returnDocument: 'after',
+      },
+    );
+    return res.status(200).json(habitUpdated);
+  };
 }
