@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import { z } from 'zod';
 
 import { habitModel } from '../models/habit.model';
@@ -116,5 +117,53 @@ export class HabitsController {
       },
     );
     return res.status(200).json(habitUpdated);
+  };
+
+  // LISTANDO AS METRICAS DE UM HÁBITO \\
+  metrics = async (req: Request, res: Response) => {
+    // SCHEMA DE VALIDAÇÃO \\
+    const schema = z.object({
+      id: z.string(),
+      date: z.coerce.date(),
+    });
+    // RECEBENDO  OS DADOS \\
+    const validated = schema.safeParse({ ...req.params, ...req.query });
+    // VALIDANDO OS DADOS \\
+    if (!validated.success) {
+      const errors = buildValidationErrorMessage(validated.error.issues);
+      return res.status(422).json({ message: errors });
+    }
+
+    const dateFrom = dayjs(validated.data.date).startOf('month').toDate();
+    const dateTo = dayjs(validated.data.date).endOf('month').toDate();
+
+    // CRIANDO AGGREGAÇÃO PARA PEGAR AS MÉTRICAS \\
+    const [habitMetrics] = await habitModel
+      .aggregate()
+      .match({
+        _id: new mongoose.Types.ObjectId(validated.data.id),
+      })
+      .project({
+        _id: 1,
+        name: 1,
+        completedDates: {
+          $filter: {
+            input: '$completedDates',
+            as: 'completedDate',
+            cond: {
+              $and: [
+                {
+                  $gte: ['$$completedDate', dateFrom],
+                },
+                {
+                  $lte: ['$$completedDate', dateTo],
+                },
+              ],
+            },
+          },
+        },
+      });
+
+    return res.status(200).json(habitMetrics);
   };
 }
