@@ -40,6 +40,33 @@ export class FocusTimeController {
     return res.status(201).json(createFocusTime);
   };
 
+  index = async (req: Request, res: Response) => {
+    // SCHEMA DE VALIDAÇÃO \\
+    const schema = z.object({
+      date: z.coerce.date(),
+    });
+    // RECEBENDO  OS DADOS \\
+    const validated = schema.safeParse(req.query);
+    // VALIDANDO OS DADOS \\
+    if (!validated.success) {
+      const errors = buildValidationErrorMessage(validated.error.issues);
+      return res.status(422).json({ message: errors });
+    }
+    // INICIANDO O DIA INFORMADO \\
+    const startOfDay = dayjs(validated.data.date).startOf('day');
+    const endOfDay = dayjs(validated.data.date).endOf('day');
+    // BUSCANDO OS FOCO DO DIA INFORMADO \\
+    const focusTimes = await focusTimeModel
+      .find({
+        timeFrom: {
+          $gte: startOfDay.toDate(),
+          $lte: endOfDay.toDate(),
+        },
+      })
+      .sort({ timeFrom: 1 });
+    return res.status(200).json(focusTimes);
+  };
+
   metricsbyMonth = async (req: Request, res: Response) => {
     // SCHEMA DE VALIDAÇÃO \\
     const schema = z.object({

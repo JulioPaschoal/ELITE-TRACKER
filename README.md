@@ -42,8 +42,8 @@
 - PATCH/habits/:id/toogle - Marcar/desmarcar o hábito como cobcluido;
 - GET/habits/:id/metrics?date=2025-09-01 - Mostra estatísticas de um hábito;
 - POSt/focus-times - Cria um tempo de foco concluido;
-- GET/focus-times/metrics/month?date=2025-09-01 - Mostra as estatíticas de tempo de foco no mês;
-- GET/focus-times/metrics/day?date=2025-09-01 - Mostra as estatíticas de tempo de foco no dia;
+- GET/focus-times/metrics?date=2025-09-01 - Mostra as estatíticas de tempo de foco no mês;
+- GET/focus-times/date=2025-09-01 - Mostra as estatíticas de tempo de foco no dia;
 - POST/auth -Logar com o GitHub
 
 ---
