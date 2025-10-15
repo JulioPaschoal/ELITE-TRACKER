@@ -23,8 +23,8 @@ export class FocusTimeController {
     }
 
     // CONVERTENDO PARA DAYJS \\
-    const timeFrom = dayjs(focusTime.data.timeFrom);
-    const timeTo = dayjs(focusTime.data.timeTo);
+    const timeFrom = dayjs(focusTime.data?.timeFrom);
+    const timeTo = dayjs(focusTime.data?.timeTo);
 
     // VERIFICANDO SE timeFrom É MAIOR QUE timeTo \\
     const isTimeToBeforeTimeFrom = timeTo.isBefore(timeFrom);
@@ -38,5 +38,42 @@ export class FocusTimeController {
       timeTo: timeTo.toDate(),
     });
     return res.status(201).json(createFocusTime);
+  };
+
+  metricsbyMonth = async (req: Request, res: Response) => {
+    // SCHEMA DE VALIDAÇÃO \\
+    const schema = z.object({
+      date: z.coerce.date(),
+    });
+    // RECEBENDO  OS DADOS \\
+    const validated = schema.safeParse(req.query);
+    // VALIDANDO OS DADOS \\
+    if (!validated.success) {
+      const errors = buildValidationErrorMessage(validated.error.issues);
+      return res.status(422).json({ message: errors });
+    }
+    // INICIANDO O DIA 1 DO MÊS E ANO INFORMADOS \\
+    const startDate = dayjs(validated.data.date).startOf('month');
+    const endDate = dayjs(validated.data.date).endOf('month');
+    // AGREGANDO OS DADOS \\
+    const focusTimeMetrics = await focusTimeModel
+      .aggregate()
+      .match({
+        timeFrom: {
+          $gte: startDate.toDate(),
+          $lte: endDate.toDate(),
+        },
+      })
+      .project({
+        year: { $year: '$timeFrom' },
+        month: { $month: '$timeFrom' },
+        day: { $dayOfMonth: '$timeFrom' },
+      })
+      .group({
+        _id: ['$year', '$month', '$day'],
+        count: { $sum: 1 },
+      })
+      .sort({ _id: 1 });
+    return res.status(200).json(focusTimeMetrics);
   };
 }

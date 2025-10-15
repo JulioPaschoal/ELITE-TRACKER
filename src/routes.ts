@@ -23,3 +23,4 @@ routes.patch('/habits/:id/toggle', habitsController.toggle);
 
 // Focus Time Endpoints \\
 routes.post('/focus-time', focusTimeController.store);
+routes.get('/focus-time/metrics-by-month', focusTimeController.metricsbyMonth);

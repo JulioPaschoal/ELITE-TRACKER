@@ -133,13 +133,12 @@ export class HabitsController {
       const errors = buildValidationErrorMessage(validated.error.issues);
       return res.status(422).json({ message: errors });
     }
-
-    const dateFrom = dayjs(validated.data.date).startOf('month').toDate();
-    const dateTo = dayjs(validated.data.date).endOf('month').toDate();
-
-    // CRIANDO AGGREGAÇÃO PARA PEGAR AS MÉTRICAS \\
+    // PEGANDO O INTERVALO DE DATAS DO MÊS \\
+    const dateForm = dayjs(validated.data.date).startOf('month');
+    const dateTo = dayjs(validated.data.date).endOf('month');
+    // AGRUPANDO AS METRICAS \\
     const [habitMetrics] = await habitModel
-      .aggregate()
+      .aggregate([])
       .match({
         _id: new mongoose.Types.ObjectId(validated.data.id),
       })
@@ -149,21 +148,21 @@ export class HabitsController {
         completedDates: {
           $filter: {
             input: '$completedDates',
-            as: 'completedDate',
+            as: 'completedDates',
             cond: {
               $and: [
-                {
-                  $gte: ['$$completedDate', dateFrom],
-                },
-                {
-                  $lte: ['$$completedDate', dateTo],
-                },
+                { $gte: ['$$completedDates', dateForm.toDate()] },
+                { $lte: ['$$completedDates', dateTo.toDate()] },
               ],
             },
           },
         },
       });
-
+    // VERIFICANDO SE O HÁBITO EXISTE \\
+    if (!habitMetrics) {
+      return res.status(404).json({ message: 'Habit not found' });
+    }
+    // RETORNANDO AS METRICAS \\
     return res.status(200).json(habitMetrics);
   };
 }
