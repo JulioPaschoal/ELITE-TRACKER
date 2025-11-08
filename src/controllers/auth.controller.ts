@@ -1,8 +1,13 @@
 import axios, { isAxiosError } from 'axios';
 import { Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
 
-const { GITHUB_CLIENT_ID: clientId, GITHUB_CLIENT_SECRET: clientSecret } =
-  process.env;
+const {
+  GITHUB_CLIENT_ID: clientId,
+  GITHUB_CLIENT_SECRET: clientSecret,
+  JWT_SECRET: jwtSecret,
+  JWT_EXPIRES_IN: expiresIn,
+} = process.env;
 
 //Redirecionando para o GitHub \\
 export class AuthController {
@@ -38,7 +43,11 @@ export class AuthController {
         avatar_url: avatarUrl,
         login: username,
       } = userDataResult.data;
-      return res.status(200).json({ id, avatarUrl, username });
+      // CRIANDO O TOKEN \\
+      const token = jwt.sign({ id }, jwtSecret, {
+        expiresIn,
+      });
+      return res.status(200).json({ id, avatarUrl, username, token });
     } catch (err) {
       if (isAxiosError(err)) {
         return res.status(400).json(err.response?.data);
