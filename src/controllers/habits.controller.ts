@@ -34,7 +34,9 @@ export class HabitsController {
 
   // LISTANDO OS HÁBITOS \\
   index = async (req: Request, res: Response) => {
-    const habits = await habitModel.find().sort({ name: 1 });
+    const habits = await habitModel
+      .find({ userId: req.user.id })
+      .sort({ name: 1 });
     return res.status(200).json(habits);
   };
 

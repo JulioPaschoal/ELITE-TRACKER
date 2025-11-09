@@ -21,8 +21,11 @@ routes.get('/', (req, res) => {
 routes.get('/auth', authController.auth);
 routes.get('/auth/callback', authController.authCallback);
 
+// Middleware de autenticação \\
+routes.use(authMiddleware);
+
 // Habits Endpoints \\
-routes.get('/habits', authMiddleware, habitsController.index);
+routes.get('/habits', habitsController.index);
 routes.get('/habits/:id/metrics', habitsController.metrics);
 routes.post('/habits', habitsController.store);
 routes.delete('/habits/:id', habitsController.remove);

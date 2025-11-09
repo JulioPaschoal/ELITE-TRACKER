@@ -4,6 +4,7 @@ const HabitSchema = new Schema(
   {
     name: { type: String, required: true },
     completedDates: { type: [Date] },
+    userId: { type: String, required: true },
   },
 
   {
