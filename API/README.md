@@ -2,7 +2,7 @@
 
 > Jornada do Usuário
 
-## ![image](/img/00001.png)
+## ![image](./img/00001.png)
 
 > Requisitos Funcionais (RF´s)
 

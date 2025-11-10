@@ -36,6 +36,7 @@ export class FocusTimeController {
     const createFocusTime = await focusTimeModel.create({
       timeFrom: timeFrom.toDate(),
       timeTo: timeTo.toDate(),
+      userId: req.user.id,
     });
     return res.status(201).json(createFocusTime);
   };
@@ -62,6 +63,7 @@ export class FocusTimeController {
           $gte: startOfDay.toDate(),
           $lte: endOfDay.toDate(),
         },
+        userId: req.user.id,
       })
       .sort({ timeFrom: 1 });
     return res.status(200).json(focusTimes);
@@ -90,6 +92,7 @@ export class FocusTimeController {
           $gte: startDate.toDate(),
           $lte: endDate.toDate(),
         },
+        userId: req.user.id,
       })
       .project({
         year: { $year: '$timeFrom' },
