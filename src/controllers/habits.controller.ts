@@ -28,6 +28,7 @@ export class HabitsController {
     const newHabits = await habitModel.create({
       name: habit.data.name,
       completedDates: [],
+      userId: req.user.id,
     });
     return res.status(201).json(newHabits);
   };
@@ -54,7 +55,10 @@ export class HabitsController {
       return res.status(422).json({ message: errors });
     }
     // VERIFICANDO SE O HÁBITO EXISTE \\
-    const habitExists = await habitModel.findOne({ _id: habit.data.id });
+    const habitExists = await habitModel.findOne({
+      _id: habit.data.id,
+      userId: req.user.id,
+    });
     if (!habitExists) {
       return res.status(404).json({ message: 'Habit not found' });
     }
@@ -76,7 +80,10 @@ export class HabitsController {
       return res.status(422).json({ message: errors });
     }
     // VERIFICANDO SE O HÁBITO EXISTE \\
-    const findHabit = await habitModel.findOne({ _id: validated.data.id });
+    const findHabit = await habitModel.findOne({
+      _id: validated.data.id,
+      userId: req.user.id,
+    });
     if (!findHabit) {
       return res.status(404).json({ message: 'Habit not found' });
     }
@@ -136,13 +143,15 @@ export class HabitsController {
       return res.status(422).json({ message: errors });
     }
     // PEGANDO O INTERVALO DE DATAS DO MÊS \\
-    const dateForm = dayjs(validated.data.date).startOf('month');
-    const dateTo = dayjs(validated.data.date).endOf('month');
+    const dateForm = dayjs(validated.data.date).startOf('month').toDate();
+    const dateTo = dayjs(validated.data.date).endOf('month').toDate();
+
     // AGRUPANDO AS METRICAS \\
     const [habitMetrics] = await habitModel
       .aggregate([])
       .match({
         _id: new mongoose.Types.ObjectId(validated.data.id),
+        userId: req.user.id,
       })
       .project({
         _id: 1,
@@ -150,11 +159,11 @@ export class HabitsController {
         completedDates: {
           $filter: {
             input: '$completedDates',
-            as: 'completedDates',
+            as: 'completedDate',
             cond: {
               $and: [
-                { $gte: ['$$completedDates', dateForm.toDate()] },
-                { $lte: ['$$completedDates', dateTo.toDate()] },
+                { $gte: ['$$completedDate', dateForm] },
+                { $lte: ['$$completedDate', dateTo] },
               ],
             },
           },
