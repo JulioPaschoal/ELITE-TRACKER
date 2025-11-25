@@ -1,9 +1,9 @@
-function App() {
+import { Login } from './screens/login';
+
+export function App() {
   return (
     <>
-      <h1>Hello World</h1>
+      <Login />
     </>
   );
 }
-
-export default App;
