@@ -1,7 +1,7 @@
 .container {
-  background: #04141c;
+  background: var(--black-blue);
   height: 100vh;
-  color: #ffffff;
+  color: var(--white);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -15,12 +15,12 @@
   flex-direction: column;
   flex-shrink: 0;
   border-radius: 8px;
-  background: #001e2b;
+  background: var(--dark-blue);
   padding: 32px;
 }
 
 .content h1 {
-  color: #ffffff;
+  color: var(--white);
   font-size: 24px;
   margin-bottom: 40px;
 }
@@ -28,7 +28,7 @@
 .content p {
   width: 212px;
   margin-top: 20px;
-  color: #fff;
+  color: var(--white);
   text-align: center;
   font-family: Lexend;
   font-size: 12px;
